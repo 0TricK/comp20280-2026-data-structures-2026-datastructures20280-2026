@@ -31,31 +31,34 @@ public class AVLTreeMap<K, V> extends TreeMap<K, V> {
      * Returns the height of the given tree position.
      */
     protected int height(Position<Entry<K, V>> p) {
-        // TODO
-        return 0;
+        return tree.getAux(p);
     }
 
     /**
      * Recomputes the height of the given position based on its children's heights.
      */
     protected void recomputeHeight(Position<Entry<K, V>> p) {
-        // TODO
+        tree.setAux(p, 1 + Math.max(height(left(p)), height(right(p))));
     }
 
     /**
      * Returns whether a position has balance factor between -1 and 1 inclusive.
      */
     protected boolean isBalanced(Position<Entry<K, V>> p) {
-        // TODO
-        return false;
+        return Math.abs(height(left(p)) - height(right(p))) <= 1;
     }
 
     /**
      * Returns a child of p with height no smaller than that of the other child.
      */
     protected Position<Entry<K, V>> tallerChild(Position<Entry<K, V>> p) {
-        // TODO
-        return null;
+        int leftH  = height(left(p));
+        int rightH = height(right(p));
+        if (leftH > rightH)  return left(p);
+        if (rightH > leftH)  return right(p);
+        if (isRoot(p))       return left(p);
+        if (p == left(parent(p)))  return left(p);
+        else                       return right(p);
     }
 
     /**
@@ -64,7 +67,19 @@ public class AVLTreeMap<K, V> extends TreeMap<K, V> {
      * imbalance is found, continuing until balance is restored.
      */
     protected void rebalance(Position<Entry<K, V>> p) {
-        // TODO
+        int oldHeight, newHeight;
+        do {
+            oldHeight = height(p);
+            if (!isBalanced(p)) {
+                // trinode restructure at the taller grandchild
+                p = restructure(tallerChild(tallerChild(p)));
+                recomputeHeight(left(p));
+                recomputeHeight(right(p));
+            }
+            recomputeHeight(p);
+            newHeight = height(p);
+            p = parent(p);
+        } while (p != null && oldHeight != newHeight);
     }
 
     /**
@@ -80,7 +95,8 @@ public class AVLTreeMap<K, V> extends TreeMap<K, V> {
      */
     @Override
     protected void rebalanceDelete(Position<Entry<K, V>> p) {
-        // TODO
+        if (!isRoot(p))
+            rebalance(parent(p));
     }
 
     /**
