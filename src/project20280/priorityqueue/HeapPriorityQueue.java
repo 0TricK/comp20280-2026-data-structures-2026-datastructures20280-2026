@@ -180,6 +180,22 @@ public class HeapPriorityQueue<K, V> extends AbstractPriorityQueue<K, V> {
         return answer;
     }
 
+    public static Integer[] pqSort(Integer[] data) {
+
+        // Use heapify constructor (O(n))
+        HeapPriorityQueue<Integer, Integer> pq =
+                new HeapPriorityQueue<>(data, data);
+
+        Integer[] result = new Integer[data.length];
+        int i = 0;
+
+        while (pq.size() > 0) {
+            result[i++] = pq.removeMin().getKey();
+        }
+
+        return result;
+    }
+
     public String toString() {
         return heap.toString();
     }

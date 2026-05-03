@@ -27,7 +27,27 @@ public class SplayTreeMap<K, V> extends TreeMap<K, V> {
      * Utility used to rebalance after a map operation.
      */
     private void splay(Position<Entry<K, V>> p) {
-        // TODO
+        while (!isRoot(p)) {
+            Position<Entry<K, V>> parent = parent(p);
+            Position<Entry<K, V>> grandParent = isRoot(parent) ? null : parent(parent);
+
+            if (grandParent == null) {
+                // Zig: parent is root — single rotation
+                rotate(p);
+
+            } else if ((left(parent) == p) == (left(grandParent) == parent)) {
+                // Zig-Zig: p and parent are both left-children or both right-children
+                // Rotate the parent first, then p (avoids degenerate linked-list behaviour)
+                rotate(parent);
+                rotate(p);
+
+            } else {
+                // Zig-Zag: p and parent are on opposite sides
+                // Rotate p twice (once with parent, once with grandparent)
+                rotate(p);
+                rotate(p);
+            }
+        }
     }
 
     /**
@@ -37,7 +57,13 @@ public class SplayTreeMap<K, V> extends TreeMap<K, V> {
      */
     //@Override
     protected void rebalanceAccess(Position<Entry<K, V>> p) {
-        // TODO
+        if (isExternal(p)) {
+            // p is a sentinel leaf, so we move to the last internal node visited
+            p = parent(p);
+        }
+        if (p != null) {
+            splay(p);
+        }
     }
 
     /**
@@ -47,7 +73,6 @@ public class SplayTreeMap<K, V> extends TreeMap<K, V> {
      */
     //@Override
     protected void rebalanceInsert(Position<Entry<K, V>> p) {
-        // TODO
         splay(p);
     }
 
@@ -58,7 +83,9 @@ public class SplayTreeMap<K, V> extends TreeMap<K, V> {
      */
     //@Override
     protected void rebalanceDelete(Position<Entry<K, V>> p) {
-        // TODO
+        if (!isRoot(p) && isInternal(p)) {
+            splay(p);
+        }
     }
 
     public static void main(String[] args) {
